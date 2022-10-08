@@ -2,6 +2,14 @@
 #include <stdlib.h>
 #include <stdbool.h>
 
+#ifdef __unix__
+#define CLEAR "clear"
+
+#else
+#define CLEAR "cls"
+
+#endif
+
 #define LONGEUR 6
 #define LARGEUR 7
 
@@ -45,7 +53,7 @@ int main(void) {
     printf("Joueur 2, Entrez votre nom -> ");
     scanf("%s", player2);
     
-    system("clear");
+    system(CLEAR);
 
     while(game) {
         if (round) {
@@ -57,7 +65,7 @@ int main(void) {
 
             round = 1;
         }
-        system("clear");
+        system(CLEAR);
     }
 
 
