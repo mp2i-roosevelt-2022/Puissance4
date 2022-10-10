@@ -44,31 +44,59 @@ void printGame(char game[LONGEUR][LARGEUR]) {
 */
 int jouerCoup(int * round, char * name, char grid[LONGEUR][LARGEUR]) {
     int coup, position = 0;
+    
+    printGame(grid);
+    
     printf("Entrez votre coup %s: ", name);
-    scanf("%1d", &coup);
+    scanf("%d", &coup);
 
     coup--; // permet de démarrer les indices à 0
 
-    if (grid[coup][position] != '_' || coup < 0)
-        return 1;
+    for (int i = LONGEUR - 1; i >= 0; i--) {
+        if (grid[i][coup] != '_' || coup < 0 || coup > LARGEUR - 1) {
+            continue;
+        }
 
-    while (position < LONGEUR && grid[coup][position + 1] == '_')
-        position++;
-
-    if (*round == 1) {
-        grid[coup][position] = 'O';
-        *round = 2;
-    }
-
-    else {
-        grid[coup][position] = 'X';
-        *round = 1;
+        if (*round == 1 ){
+            grid[i][coup] = 'O';
+            *round = 2;
+        } else {
+            grid[i][coup] = 'X';
+            *round = 1;
+        }
+        break;
     }
     return 0;
 }
 
-bool gameFinished() {
-    return true;
+bool gameFinished(char grid[LONGEUR][LARGEUR]) {
+
+    // On essaye de vérifier les lignes chaque case
+    for(int x = 0; x < LONGEUR; x++) {
+        for (int y = 0; y < LARGEUR; y++) {
+            if(grid[x][y] == '_') {continue;} // Si la case à vérifier est vide, on passe à l'autre case   
+            
+            for (int i = 0; i < 2; i++) { // (0, 1) pour l'horizontal et la verticale
+                // Si correct = 3 alors les 3 cases d'à côté sont les même que celle du (x, y)
+                int correct = 0; 
+                for (int pos = 1; pos < 4; pos++) {
+                    // "grid[x+((i == 0) ? pos : 0)]" puisque i = (0, 1) (horizontal, vertical)
+                    // Si i = 0 On ajoutera POS à x et 0 à y (vertical) sinon
+                    // On ajoutera POS à y et 0 à x (horizontal) 
+                    // Phase 1: Si la case[x][y] actuelle est la même que case[x+pos][y] on ajoute 1 à correct
+                    // Phase 2: Si la case[x][y] actuelle est la même que case[x][y+pos] on ajouet 1 à correct
+                    // A chaque début de phase, correct = 0 
+                    if(grid[x][y] == grid[x+((i == 0) ? pos : 0)][y+((i == 1) ? pos : 0)]) {
+                        correct++;
+                        if (correct == 3) {
+                            return true; // Renvoie true -> Jeu fini
+                        }
+                    }
+                }
+            }
+        }
+    }
+    return false;
 }
 
 int main(void) {
@@ -86,9 +114,11 @@ int main(void) {
     printf("Joueur 2, Entrez votre nom -> ");
     scanf("%20s", player2);
 
+    system(CLEAR);
+
     char nameArray[2][20]; // tableau qui contient le nom des joueurs
     strcpy(nameArray[0], player1);
-    strcpy(nameArray[0], player2);
+    strcpy(nameArray[1], player2);
 
     for(int i=0; i < LONGEUR; i++) {
         for(int j=0; j < LARGEUR; j++) {
@@ -96,16 +126,17 @@ int main(void) {
         }
     }
 
-
-    system(CLEAR);
-
     while(game) {
-        while (jouerCoup(&round, nameArray[round-1], grid));
-        game = !gameFinished();
+        jouerCoup(&round, nameArray[round-1], grid);
+        if(gameFinished(grid)) {
+            break;            
+        }
         system(CLEAR);
     }
 
     printGame(grid);
-
+    
+    printf("Bravo, Vous avez gagné ! \n");
+    
     return 0;
 }
