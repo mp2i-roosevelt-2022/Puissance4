@@ -3,11 +3,11 @@
 #include <stdbool.h>
 #include <string.h>
 
-#ifdef __unix__
-#define CLEAR "clear"
+#ifdef _WIN32
+#define CLEAR "cls"
 
 #else
-#define CLEAR "cls"
+#define CLEAR "clear"
 
 #endif
 
@@ -75,7 +75,8 @@ bool gameFinished(char grid[LONGEUR][LARGEUR]) {
     for(int x = 0; x < LONGEUR; x++) {
         for (int y = 0; y < LARGEUR; y++) {
             if(grid[x][y] == '_') {continue;} // Si la case à vérifier est vide, on passe à l'autre case   
-            
+
+            // Horizontal, Vertical
             for (int i = 0; i < 2; i++) { // (0, 1) pour l'horizontal et la verticale
                 // Si correct = 3 alors les 3 cases d'à côté sont les même que celle du (x, y)
                 int correct = 0; 
@@ -85,11 +86,25 @@ bool gameFinished(char grid[LONGEUR][LARGEUR]) {
                     // On ajoutera POS à y et 0 à x (horizontal) 
                     // Phase 1: Si la case[x][y] actuelle est la même que case[x+pos][y] on ajoute 1 à correct
                     // Phase 2: Si la case[x][y] actuelle est la même que case[x][y+pos] on ajouet 1 à correct
-                    // A chaque début de phase, correct = 0 
+                    // A chaque début de phase, correct = 0
                     if(grid[x][y] == grid[x+((i == 0) ? pos : 0)][y+((i == 1) ? pos : 0)]) {
                         correct++;
                         if (correct == 3) {
                             return true; // Renvoie true -> Jeu fini
+                        }
+                    }
+                }
+            }
+
+            // Diagonale 
+            for(int i = 0; i < 2; i++) {
+                int correct = 0;
+                for (int pos = 1; pos < 4; pos++) {
+                    // check si grid[x][y] == grid[x-pos][y+pos] ou grid[x-pos][y-pos]
+                    if (grid[x][y] == grid[x-pos][y+((i == 0) ? pos: -pos)]) {
+                        correct++;
+                        if(correct == 3) {
+                            return true;
                         }
                     }
                 }
@@ -134,9 +149,7 @@ int main(void) {
         system(CLEAR);
     }
 
-    printGame(grid);
-    
     printf("Bravo, Vous avez gagné ! \n");
-    
+
     return 0;
 }
