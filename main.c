@@ -79,7 +79,8 @@ bool gameFinished(char grid[LONGEUR][LARGEUR]) {
             // Horizontal, Vertical
             for (int i = 0; i < 2; i++) { // (0, 1) pour l'horizontal et la verticale
                 // Si correct = 3 alors les 3 cases d'à côté sont les même que celle du (x, y)
-                int correct = 0; 
+                int straight = 0;
+                int diagonal = 0;
                 for (int pos = 1; pos < 4; pos++) {
                     // "grid[x+((i == 0) ? pos : 0)]" puisque i = (0, 1) (horizontal, vertical)
                     // Si i = 0 On ajoutera POS à x et 0 à y (vertical) sinon
@@ -88,22 +89,16 @@ bool gameFinished(char grid[LONGEUR][LARGEUR]) {
                     // Phase 2: Si la case[x][y] actuelle est la même que case[x][y+pos] on ajouet 1 à correct
                     // A chaque début de phase, correct = 0
                     if(grid[x][y] == grid[x+((i == 0) ? pos : 0)][y+((i == 1) ? pos : 0)]) {
-                        correct++;
-                        if (correct == 3) {
+                        straight++;
+                        if (straight == 3) {
                             return true; // Renvoie true -> Jeu fini
                         }
                     }
-                }
-            }
 
-            // Diagonale 
-            for(int i = 0; i < 2; i++) {
-                int correct = 0;
-                for (int pos = 1; pos < 4; pos++) {
-                    // check si grid[x][y] == grid[x-pos][y+pos] ou grid[x-pos][y-pos]
+                    // Diagonal
                     if (grid[x][y] == grid[x-pos][y+((i == 0) ? pos: -pos)]) {
-                        correct++;
-                        if(correct == 3) {
+                        diagonal++;
+                        if(diagonal == 3) {
                             return true;
                         }
                     }
@@ -143,13 +138,17 @@ int main(void) {
 
     while(game) {
         jouerCoup(&round, nameArray[round-1], grid);
+        system(CLEAR);
         if(gameFinished(grid)) {
             break;            
         }
-        system(CLEAR);
     }
 
-    printf("Bravo, Vous avez gagné ! \n");
+    // On switch au gagnant 
+    round = ((round == 1) ? 2 : 1);
+
+    printGame(grid);
+    printf("Bravo %s, Vous avez gagné ! \n", nameArray[round-1]);
 
     return 0;
 }
